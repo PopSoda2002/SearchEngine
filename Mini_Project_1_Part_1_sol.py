@@ -1,4 +1,3 @@
-
 ## Mini Project 1 - Part 1: Getting Familiar with Word Embeddings.
 # This assignment introduces students to text similarity measures using cosine similarity and sentence embeddings. 
 # Students will implement and compare different methods for computing and analyzing text similarity using GloVe and Sentence Transformers.
@@ -247,10 +246,18 @@ def cosine_similarity(x, y):
     3. Return exponentiated cosine similarity
     (20 pts)
     """
-    ##################################
-    ### TODO: Add code here ##########
-    ##################################
-    pass
+    # Compute dot product
+    dot_product = np.dot(x, y)
+    
+    # Compute magnitudes
+    x_magnitude = np.linalg.norm(x)
+    y_magnitude = np.linalg.norm(y)
+    
+    # Compute cosine similarity
+    cos_sim = dot_product / (x_magnitude * y_magnitude)
+    
+    # Exponentiate and return
+    return np.exp(cos_sim)
     
 # Task II: Average Glove Embedding Calculation
 def averaged_glove_embeddings_gdrive(sentence, word_index_dict, embeddings, model_type=50):
@@ -264,10 +271,25 @@ def averaged_glove_embeddings_gdrive(sentence, word_index_dict, embeddings, mode
     (30 pts)
     """
     embedding = np.zeros(int(model_type.split("d")[0]))
-    ##################################
-    ##### TODO: Add code here ########
-    ##################################
-
+    
+    # Split sentence into words
+    words = sentence.lower().split()
+    
+    # Track number of words found in embeddings
+    num_words = 0
+    
+    # Add embeddings for each word
+    for word in words:
+        if word in word_index_dict:
+            word_idx = word_index_dict[word]
+            embedding += embeddings[word_idx]
+            num_words += 1
+            
+    # Average the embeddings if any words were found
+    if num_words > 0:
+        embedding = embedding / num_words
+        
+    return embedding
 
 # Task III: Sort the cosine similarity
 def get_sorted_cosine_similarity(embeddings_metadata):
@@ -282,19 +304,25 @@ def get_sorted_cosine_similarity(embeddings_metadata):
     (50 pts)
     """
     categories = st.session_state.categories.split(" ")
-    cosine_sim = {}
+    cosine_scores = []  # 改用列表存储结果
+    
     if embeddings_metadata["embedding_model"] == "glove":
         word_index_dict = embeddings_metadata["word_index_dict"]
         embeddings = embeddings_metadata["embeddings"]
         model_type = embeddings_metadata["model_type"]
 
         input_embedding = averaged_glove_embeddings_gdrive(st.session_state.text_search,
-                                                            word_index_dict,
-                                                            embeddings, model_type)
+                                                         word_index_dict,
+                                                         embeddings, model_type)
         
-        ##########################################
-        ## TODO: Get embeddings for categories ###
-        ##########################################
+        # 计算每个类别的相似度
+        for i, category in enumerate(categories):
+            category_embedding = averaged_glove_embeddings_gdrive(category,
+                                                                word_index_dict,
+                                                                embeddings,
+                                                                model_type)
+            # 存储索引和相似度分数
+            cosine_scores.append((i, cosine_similarity(input_embedding, category_embedding)))
 
     else:
         model_name = embeddings_metadata["model_name"]
@@ -303,19 +331,24 @@ def get_sorted_cosine_similarity(embeddings_metadata):
 
         category_embeddings = st.session_state["cat_embed_" + model_name]
 
-        print("text_search = ", st.session_state.text_search)
         if model_name:
             input_embedding = get_sentence_transformer_embeddings(st.session_state.text_search, model_name=model_name)
         else:
             input_embedding = get_sentence_transformer_embeddings(st.session_state.text_search)
-        for index in range(len(categories)):
-            pass
-            ##########################################
-            # TODO: Compute cosine similarity between input sentence and categories
-            # TODO: Update category embeddings if category not found  
-            ##########################################
+            
+        # 计算每个类别的相似度
+        for i, category in enumerate(categories):
+            if category not in category_embeddings:
+                if model_name:
+                    category_embeddings[category] = get_sentence_transformer_embeddings(category, model_name=model_name)
+                else:
+                    category_embeddings[category] = get_sentence_transformer_embeddings(category)
+            
+            # 存储索引和相似度分数
+            cosine_scores.append((i, cosine_similarity(input_embedding, category_embeddings[category])))
 
-    return 
+    # 按相似度分数降序排序
+    return sorted(cosine_scores, key=lambda x: x[1], reverse=True)
 
 
 ### Below is the main function, creating the app demo for text search engine using the text embeddings.
@@ -391,7 +424,7 @@ if __name__ == "__main__":
         }
         with st.spinner("Obtaining Cosine similarity for Glove..."):
             sorted_cosine_sim_glove = get_sorted_cosine_similarity(
-                st.session_state.text_search, embeddings_metadata
+                embeddings_metadata
             )
 
         # Sentence transformer embeddings
@@ -399,7 +432,7 @@ if __name__ == "__main__":
         embeddings_metadata = {"embedding_model": "transformers", "model_name": ""}
         with st.spinner("Obtaining Cosine similarity for 384d sentence transformer..."):
             sorted_cosine_sim_transformer = get_sorted_cosine_similarity(
-                st.session_state.text_search, embeddings_metadata
+                embeddings_metadata
             )
 
         # Results and Plot Pie Chart for Glove
