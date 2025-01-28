@@ -3,3 +3,7 @@ numpy
 sentence-transformers
 matplotlib
 gdown
+torch
+pickle5
+scikit-learn
+pandas
