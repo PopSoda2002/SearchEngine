@@ -15,7 +15,7 @@
 
 ### Import necessary libraries: here you will use streamlit library to run a text search demo, please make sure to install it.
 # Contribution: 
-# @Huapeng Zhou:
+# @Huapeng Zhou: Implement the code, collaborate with junfeng, and deploy the app
 
 # @Junfeng Zhou: Independently developed a separate version of the code, reviewed Huapeng's code, and merged both versions. Documented the testing results of different embedding models in a PDF file.
 
