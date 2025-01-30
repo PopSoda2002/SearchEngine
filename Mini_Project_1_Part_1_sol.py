@@ -16,7 +16,8 @@
 ### Import necessary libraries: here you will use streamlit library to run a text search demo, please make sure to install it.
 # Contribution: 
 # @Huapeng Zhou:
-# @Junfeng Zhou:
+
+# @Junfeng Zhou: Independently developed a separate version of the code, reviewed Huapeng's code, and merged both versions. Documented the testing results of different embedding models in a PDF file.
 
 import streamlit as st
 import numpy as np
