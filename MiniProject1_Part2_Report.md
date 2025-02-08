@@ -4,7 +4,7 @@
 
 @Huapeng Zhou: Implemnt the fine-tuning part, and do some experiments.
 
-@Junfeng Zhou:
+@Junfeng Zhou: Implement both ranking and fine-tuning parts, get better MAP score with triple InputExample. Write the Ranking Document Report.
 
 ## Ranking Document Report
 
@@ -57,43 +57,42 @@
 **2.1 Comparison of Different Training Strategies**
 
 > Q: [anchor, positive] vs [anchor, positive, negative]. How did the model behave differently?
-A: The [anchor, positive, negative] approach seemed to improve ranking.
+> A: The SBERT model can learn better representations with the help of negative samples and get higher MAP score in [anchor, positive, negative] approach.
 
 **2.2 Impact on MAP Score**
 
 > Q: Did fine-tuning improve or hurt the Mean Average Precision (MAP) score?
-A: Fine-tuning decreased the MAP score in [anchor, positive] approach, the MAP score is 0.4456, and decreased more in [anchor, positive, negative] approach with triple loss, the MAP score is 0.2784. However, there is a marginal improvement in [anchor, positive, negative] approach with negative loss, the MAP score is 0.461.
+A: Fine-tuning decreased the MAP score in [anchor, positive] approach, the MAP score is 0.4537, and decreased more in [anchor, positive, negative] approach with **triple loss**, the MAP score is **0.3618**. However, there is a marginal improvement in [anchor, positive, negative] approach with **negative loss**, the MAP score is **0.4611**.
 
 > Q: If MAP decreased, why might that be?
-A: If the MAP score decreased, it might be because the learning rate is too high or the number of epochs is too low, maybe overfitting.
+A: The MAP score decreased with the positive sample only approach partly because the model was not able to differentiate between positive and negative samples. 
 
 > Q: Is fine-tuning always necessary for retrieval models?
-
-A: No, fine-tuning is not always necessary for retrieval models. The necessity depends on several factors:
-1. Performance Requirements: If the pre-trained model meets the required performance metrics, fine-tuning may be unnecessary.
-2. Dataset Size: With very small datasets, fine-tuning might lead to overfitting rather than improvement.
-
-The decision to fine-tune should be based on empirical evaluation of the pre-trained model's performance on your specific use case and requirements.
+> A: No, fine-tuning is not always necessary for retrieval models. The necessity depends on several factors:
+> 1. Performance Requirements: If the pre-trained model meets the required performance metrics, fine-tuning may be unnecessary.
+> 2. Dataset Size: With very small datasets, fine-tuning might lead to overfitting rather than improvement.
+> 
+> The decision to fine-tune should be based on empirical evaluation of the pre-trained model's performance on your specific use case and requirements.
 
 **2.3 Observations on Training Loss & Learning Rate**
 
 > Q: Did the loss converge?
-A: Yes, the loss converged.
+A: Yes, the loss converged in 4 epochs.
 
 > Q: Was the learning rate too high or too low?
-A: The learning rate was appropriate.
+A: The learning rate was appropriate, default as 2e-5.
 
 > Q: How did freezing/unfreezing layers impact training?
 A: Freezing/unfreezing layers impacted training. When some layers were frozen, the loss converged faster. When the layers were unfrozen, the loss converged slower.
 
-## Future Improvements
+**2.4 Future Improvements**
 
 > Q: Would training with more negatives help?
-A: Yes, training with more negatives might help improve performance.
+A: Yes, training with more negatives might help improve performance, because the model can learn the difference between positive and negative samples better.
 
 > Q: Would changing the loss function (e.g., using Softmax Loss) improve performance?
 A: Yes, changing the loss function might help improve performance.
 
 > Q: Could increasing the number of epochs lead to a better model?
-A: Yes, increasing the number of epochs might lead to a better model. When the number of epochs is 1, the MAP score is 0.4456. When the number of epochs is 5, the MAP score is 0.4472, very marginal improvement.
+A: Yes, increasing the number of epochs might lead to a better model. In the [anchor, positive] approach, when the number of epochs is 1, the MAP score is 0.4456 and model is not converged yet. When the number of epochs is 4, the MAP score increases to 0.4537.
 
