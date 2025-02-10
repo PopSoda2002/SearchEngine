@@ -33,6 +33,20 @@ This code implements a document ranking system using SentenceTransformer for sem
 
 The system uses modern deep learning techniques to create semantic representations of text and find relevant documents based on query similarity.
 
+## Experiments
+
+We experimented with different SentenceTransformer models and configurations to improve the ranking system. Here are the results of our experiments:
+
+|Exp| MAP|
+|---|----|
+|all-MiniLM-L12-v2| 0.23310 |
+|all-mpnet-base-v2| 0.25553 |
+|rerank with mixedbread-ai/mxbai-rerank-base-v1r | 0.26385 |
+| **fine-tuned all-mpnet-base-v2** | **0.28786** |
+
+We started with the `all-MiniLM-L12-v2` model and achieved a MAP score of 0.23310. We then switched to the advanced `all-mpnet-base-v2` model and improved the score to 0.25553. We then experimented with retrieval-reranking paradigms,using the `mixedbread-ai/mxbai-rerank-base-v1r` model to re-ranked the top 100 documents for each query retrieved by the `all-mpnet-base-v2` model, and boosted the score to 0.26385. 
+
+Finally, we fine-tuned the `all-mpnet-base-v2` model on the `[anchor, positive, negative]` training examples with `MultipleNegativesRankingLoss` and achieved the best score of **0.28786**.
 
 ## Results
 
